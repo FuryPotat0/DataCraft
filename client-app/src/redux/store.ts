@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import datacraftReducer from './datacraftSlice'
+import appReducer from './appSlice'
 
 export const store = configureStore({
     reducer: {
-        datacraftReducer
+        datacraftReducer,
+        appReducer
     }
 })
 
