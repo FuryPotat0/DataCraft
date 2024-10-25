@@ -12,8 +12,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 public class DataTypeDocument {
     @Id
-    private Long id;
+    private String id;
 
     private String name;
+
+    public DataTypeDocument(String name) {
+        this.name = name;
+    }
 }
 

@@ -7,5 +7,6 @@ import tone.datacraft.demo.document.DataTypeDocument;
 @Repository
 public interface DataTypeRepository extends MongoRepository<DataTypeDocument, Long> {
 
+    boolean existsByName(String name);
 }
 

@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @AllArgsConstructor
 public class DataFileAddRequest {
-    private Long dataTypeId;
+    private String dataTypeId;
     private MultipartFile file;
 }
 
