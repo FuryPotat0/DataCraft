@@ -5,7 +5,7 @@ import org.springframework.stereotype.Repository;
 import tone.datacraft.demo.document.DataTypeDocument;
 
 @Repository
-public interface DataTypeRepository extends MongoRepository<DataTypeDocument, Long> {
+public interface DataTypeRepository extends MongoRepository<DataTypeDocument, String> {
 
     boolean existsByName(String name);
 }
