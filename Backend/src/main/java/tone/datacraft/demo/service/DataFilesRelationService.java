@@ -11,7 +11,7 @@ import tone.datacraft.demo.request.DataFilesRelationRequest;
 public class DataFilesRelationService {
     private final DataRelationRepository dataRelationRepository;
 
-    public String save(DataFilesRelationRequest request) {
+    public String add(DataFilesRelationRequest request) {
         //TODO exists check
 
         DataRelationDocument dataRelationDocument = new DataRelationDocument(
