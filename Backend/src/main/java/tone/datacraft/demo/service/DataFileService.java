@@ -7,6 +7,7 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tone.datacraft.demo.constants.DataValueDocument;
 import tone.datacraft.demo.document.DataTypeDocument;
 import tone.datacraft.demo.request.DataFileAddRequest;
 import tone.datacraft.demo.request.DataFileCreateAndAddRequest;
@@ -53,8 +54,8 @@ public class DataFileService {
             for (JsonNode node : jsonArray) {
                 //DBObject dbObject = (DBObject) JSON.parse(node.asText());
                 doc = Document.parse(node.toString());
-                doc.put("dataTypeId", dataTypeId);
-                mongoTemplate.insert(doc, "data_value");
+                doc.put(DataValueDocument.DATA_VALUE_DATA_TYPE_ID, dataTypeId);
+                mongoTemplate.insert(doc, DataValueDocument.DATA_VALUE_COLLECTION);
             }
 
 
