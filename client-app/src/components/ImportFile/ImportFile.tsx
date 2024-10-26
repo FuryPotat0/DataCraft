@@ -16,6 +16,11 @@ const VisuallyHiddenInput = styled('input')({
     width: 1,
 });
 
+type DataFileAddRequest = {
+    dataTypeId: string
+    file: File
+}
+
 export const ImportFile: React.FunctionComponent = () => {
     const { request } = useHttp()
     //const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -26,7 +31,7 @@ export const ImportFile: React.FunctionComponent = () => {
         }
     };*/
 
-    const readFileContents = (file: File) => {
+    /*const readFileContents = (file: File) => {
         const reader = new FileReader()
         reader.onload = (event) => {
             if (event.target !== null) {
@@ -35,26 +40,22 @@ export const ImportFile: React.FunctionComponent = () => {
             }
         }
         reader.readAsText(file)
-    }
+    }*/
 
-    const sendFileToServer = (fileContents: string) => {
+    const sendFileToServer = async (file: File, fileType: string) => {
         // send to server
-        // insert here url!!!!
         try {
-            request("/api/...", "POST", {
-                fileContents
+            let requestData: DataFileAddRequest = {
+                dataTypeId: fileType,
+                file: file
+            }
+
+            await request("/data-file/add", "POST", {
+                request: requestData
             }, [{ name: 'Content-Type', value: 'applicetion/json' }])
         } catch (err: any) {
             toast.error(err)
         }
-
-        /*const payload = JSON.stringify({ fileContents });
-
-        fetch(url, {
-        method: 'POST',
-        headers,
-        body: payload,
-        })*/
     }
 
     const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,7 +68,9 @@ export const ImportFile: React.FunctionComponent = () => {
                 return;
             }
 
-            readFileContents(selectedFile)
+            sendFileToServer(selectedFile, fileExtension)
+
+            //readFileContents(selectedFile)
         }
     }
 
