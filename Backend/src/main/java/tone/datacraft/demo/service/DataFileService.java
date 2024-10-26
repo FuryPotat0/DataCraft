@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+import static tone.datacraft.demo.utils.FileUtils.*;
+
 @Service
 @RequiredArgsConstructor
 public class DataFileService {
@@ -30,6 +32,16 @@ public class DataFileService {
     public void createAndAdd(DataFileCreateAndAddRequest request) {
         String dataTypeId = dataTypeService.create(request.getDataTypeName());
         saveMultipartFile(request.getFile(), dataTypeId);
+    }
+
+    public void add(DataFileAddRequest request) {
+        Optional<DataTypeDocument> typeDocument = dataTypeService.findById(request.getDataTypeId());
+        DataTypeDocument document = typeDocument.orElseThrow(
+                () -> new RuntimeException(
+                        "Не найден тип документа с id: %s".formatted(request.getDataTypeId())
+                )
+        );
+        saveMultipartFile(request.getFile(), document.getId());
     }
 
     private void saveMultipartFile(MultipartFile file, String dataTypeId) {
@@ -46,51 +58,6 @@ public class DataFileService {
             String content = convertCsvToJson(file);
             saveFile(content, dataTypeId);
         }
-    }
-
-    private String getExtension(String fileName) {
-        String extension = "";
-
-        int i = fileName.lastIndexOf('.');
-        if (i > 0) {
-            extension = fileName.substring(i+1);
-        }
-        return extension;
-    }
-
-    public String convertCsvToJson(MultipartFile csvFile){
-        CsvSchema csvSchema = CsvSchema.emptySchema().withHeader();
-        CsvMapper csvMapper = new CsvMapper();
-        try {
-            List<Map<?, ?>> list;
-            try (MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader()
-                    .forType(Map.class)
-                    .with(csvSchema)
-                    .readValues(csvFile.getBytes())) {
-                list = mappingIterator.readAll();
-            }
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            // You can also map csv content to you own pojo
-            String jsonPretty = objectMapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(list);
-            return jsonPretty;
-
-            // Do something with json string
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Ошибка парсинга csv файла");
-        }
-    }
-
-    public void add(DataFileAddRequest request) {
-        Optional<DataTypeDocument> typeDocument = dataTypeService.findById(request.getDataTypeId());
-        DataTypeDocument document = typeDocument.orElseThrow(
-                () -> new RuntimeException(
-                        "Не найден тип документа с id: %s".formatted(request.getDataTypeId())
-                )
-        );
-        saveMultipartFile(request.getFile(), document.getId());
     }
 
     private void saveFile(String jsonString, String dataTypeId) {
