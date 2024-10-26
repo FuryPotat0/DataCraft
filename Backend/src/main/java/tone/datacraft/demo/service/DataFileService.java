@@ -10,6 +10,7 @@ import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tone.datacraft.demo.document.DataTypeDocument;
 import tone.datacraft.demo.request.DataFileAddRequest;
 import tone.datacraft.demo.request.DataFileCreateAndAddRequest;
 
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,17 +29,21 @@ public class DataFileService {
 
     public void createAndAdd(DataFileCreateAndAddRequest request) {
         String dataTypeId = dataTypeService.create(request.getDataTypeName());
-        if (Objects.equals(getExtension(request.getFile().getOriginalFilename()), "json")) {
+        saveMultipartFile(request.getFile(), dataTypeId);
+    }
+
+    private void saveMultipartFile(MultipartFile file, String dataTypeId) {
+        if (Objects.equals(getExtension(file.getOriginalFilename()), "json")) {
             try {
-                String content = new String(request.getFile().getBytes(), StandardCharsets.UTF_8);
+                String content = new String(file.getBytes(), StandardCharsets.UTF_8);
                 saveFile(content, dataTypeId);
             }
             catch (IOException e) {
                 throw new RuntimeException("Ошибка парсинга json файла");
             }
         }
-        else if (Objects.equals(getExtension(request.getFile().getOriginalFilename()), "csv")) {
-            String content = convertCsvToJson(request.getFile());
+        else if (Objects.equals(getExtension(file.getOriginalFilename()), "csv")) {
+            String content = convertCsvToJson(file);
             saveFile(content, dataTypeId);
         }
     }
@@ -78,7 +84,13 @@ public class DataFileService {
     }
 
     public void add(DataFileAddRequest request) {
-        //todo добавить добавление
+        Optional<DataTypeDocument> typeDocument = dataTypeService.findById(request.getDataTypeId());
+        DataTypeDocument document = typeDocument.orElseThrow(
+                () -> new RuntimeException(
+                        "Не найден тип документа с id: %s".formatted(request.getDataTypeId())
+                )
+        );
+        saveMultipartFile(request.getFile(), document.getId());
     }
 
     private void saveFile(String jsonString, String dataTypeId) {
