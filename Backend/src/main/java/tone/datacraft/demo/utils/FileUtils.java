@@ -7,8 +7,10 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class FileUtils {
     public static String getExtension(String fileName) {
@@ -44,5 +46,21 @@ public class FileUtils {
             e.printStackTrace();
             throw new RuntimeException("Ошибка парсинга csv файла");
         }
+    }
+
+    public static String getFileContent(MultipartFile file) {
+        String fileContent = "";
+        if (Objects.equals(getExtension(file.getOriginalFilename()), "json")) {
+            try {
+                fileContent = new String(file.getBytes(), StandardCharsets.UTF_8);
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Ошибка парсинга json файла");
+            }
+        }
+        else if (Objects.equals(getExtension(file.getOriginalFilename()), "csv")) {
+            fileContent = convertCsvToJson(file);
+        }
+        return fileContent;
     }
 }
